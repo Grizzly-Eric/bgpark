@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Todo</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <form action="/todos" method="POST">
+      <input type="text" name="content" />
+      <input type="submit" value="新增" />
+    </form>
+    <ul>
+      <% for(var i=0; i<todos.length; i++) {%>
+      <li><%= todos[i].get('content') %></li>
+      <% } %>
+    </ul>
+
+    <div id="term">
+      
+    </div>
+
+    <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <script src="http://terminal.jcubic.pl/js/jquery.terminal-0.8.8.min.js"></script>
+    <script>
+      jQuery(function($, undefined) {
+        var url = 'ws://' + window.location.host + '/echo';
+        var connection = null;
+        $('#term').terminal(function(command, term) {
+          if (connection === null)  {
+            term.echo('not connected.');
+            return;
+          }
+          connection.send(command);
+        }, {
+          grettings: 'LeanEngine websocket echo test',
+          prompt: 'ws> ',
+          onInit: function(terminal) {
+            terminal.echo('connecting webscoket on ' + url + ' ...');
+            connection = new WebSocket(url);
+            connection.onopen = function() {
+              terminal.echo('connected!');
+            };
+            connection.onerror = function(err) {
+              terminal.error('error: ' + err);
+            };
+            connection.onmessage = function(e) {
+              terminal.echo('< ' + e.data);
+            };
+            connection.onclose = function(e) {
+              terminal.echo('connection closed!');
+              connection = null;
+            }
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
